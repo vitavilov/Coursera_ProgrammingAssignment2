@@ -1,0 +1,75 @@
+> ## Create an object that contains 
+> ## a matrix and it's inversed form in local environment
+> ## and a list of 4 functions in global environment
+> 
+> makeCacheMatrix <- function(x = matrix()) {
++         inv <- NULL                     #set cache for inversed value to NULL
++         set <- function(y) {            #function to replace original batrix in the object
++                 x <<- y
++                 inv <<- NULL
++         }
++         get <- function() {x}           # function that returns original matrix
++         setinv <- function(inversed) {  #function to set inversed matrix to cache
++                 inv <<- inversed
++         } 
++         getinv <- function(){inv}       #function to return inversed value from cache
++         list(set = set, get = get,
++              setinv = setinv,
++              getinv = getinv)     
++ }
+> 
+> 
+> ## Return a matrix that is the inverse of 'x'
+> ## (assumed that the matrix supplied is always invertible)
+> cacheSolve <- function(x, ...) {
++         
++         inv <- x$getinv()       #look for cached vlue in x object
++         if(!is.null(inv)) {     #if cached value exists (not NULL)...
++                 message("getting cached data")
++                 return(inv)     #return cached value end finish the function
++         }
++         # if there is no cached value...
++         data <- x$get()         #take the original matrix from x
++         inv <- solve(data, ...) #use solve function to inverse it
++         x$setinv(inv)           #put calculated inversed matix to cache in x object
++         inv                     #return inversed matrix
++ }
+> 
+> test <- makeCacheMatrix(matrix(data = rnorm(25), nrow = 5,ncol = 5))
+
+
+> test$get()
+           [,1]       [,2]       [,3]       [,4]       [,5]
+[1,] -0.1006048 -1.1165136  0.2570980 -0.8441538 -1.8551312
+[2,]  1.4980387 -0.1678422 -0.1383783 -0.2512286 -0.4018422
+[3,]  0.7037504 -0.7270805  0.9958880  1.3558143 -0.0940258
+[4,]  0.8461609  1.6094184 -1.0285889 -0.4868872 -0.2491350
+[5,]  0.8406433  1.3440037  0.7714675 -0.2705912 -1.6364238
+
+
+> cacheSolve(test)
+           [,1]       [,2]        [,3]       [,4]        [,5]
+[1,] -0.1851216  0.6927944 -0.01531747 -0.1111478  0.05754123
+[2,] -0.2438392 -0.2251227 -0.08527150  0.1249727  0.31758287
+[3,] -0.5391978  0.4633493 -0.52195412 -1.1479750  0.70224308
+[4,]  0.3196066 -0.7846677  1.04868504  0.9229773 -0.37041077
+[5,] -0.6024102  0.5191873 -0.49737564 -0.6482715  0.07161459
+
+
+> cacheSolve(test) #run second time
+getting cached data
+           [,1]       [,2]        [,3]       [,4]        [,5]
+[1,] -0.1851216  0.6927944 -0.01531747 -0.1111478  0.05754123
+[2,] -0.2438392 -0.2251227 -0.08527150  0.1249727  0.31758287
+[3,] -0.5391978  0.4633493 -0.52195412 -1.1479750  0.70224308
+[4,]  0.3196066 -0.7846677  1.04868504  0.9229773 -0.37041077
+[5,] -0.6024102  0.5191873 -0.49737564 -0.6482715  0.07161459
+
+
+> round(test$get() %*% test$getinv(),2) #check is it really inversed
+     [,1] [,2] [,3] [,4] [,5]
+[1,]    1    0    0    0    0
+[2,]    0    1    0    0    0
+[3,]    0    0    1    0    0
+[4,]    0    0    0    1    0
+[5,]    0    0    0    0    1
